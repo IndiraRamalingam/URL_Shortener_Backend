@@ -28,7 +28,11 @@ const userSchema=new Schema({
     updatedAt:{
         type:Date,
         default:Date.now
-    }
+    },
+    url:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Url'
+    }],
 })
 
 module.exports=mongoose.model('User',userSchema,'users');

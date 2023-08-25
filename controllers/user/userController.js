@@ -51,18 +51,19 @@ const userController={
 
             let link = `http://localhost:5173/activation_page/${token}`;
 
-            await sendMail(email, "URL Shortener - Account Activation", `Hello!!, You have register to create a account on URL Shortener application.
+            await sendMail(email, "URL Shortener - Account Activation", `Hello !!, You have register to create a account on URL Shortener application.
+
                 Please click the following link to activate your account: ${link}`);
                 res.status(200).send({
-                message: `Activation link sent to mail ${existingUser.email} and link is ${link}`,
+                message: `Activation link sent to mail ${email} and link is ${link}`,
                 });
 
-            res.status(201).json({message:"Email has been sent to the Mail ID for account activation"})
+            // res.status(201).json({message:"Email has been sent to the Mail ID for account activation"})
 
         }
         catch(error){
             console.error('Error sending link to Email',error)
-            res.status(500).json({message:'Activation Error'})
+            // res.status(500).json({message:'Activation Error'})
         }
     },
 

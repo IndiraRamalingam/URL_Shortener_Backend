@@ -32,10 +32,11 @@ const resetPassword ={
       {new:true},
     );
 
- // let link = `http://localhost:5173/reset_password/${token}`;
-    let link = `https://bright-kataifi-acf1c9.netlify.app/reset_password/${token}`;       
+      let link = `http://localhost:5173/reset_password/${token}`;
+   // let link = `https://bright-kataifi-acf1c9.netlify.app/reset_password/${token}`;       
 
-    await sendMail(userDB.email, "Password Reset App - Reset your password", `Hello!!, You have requested to reset your password.
+    await sendMail(userDB.email, "URL Shortener App - Reset your password ", `Hello!!, You have requested to reset your password.
+
      Please click the following link to reset your password: ${link}`);
     res.status(200).send({
       message: `Reset link sent to mail ${userDB.email} and link is ${link}`,
