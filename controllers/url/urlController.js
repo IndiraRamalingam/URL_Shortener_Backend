@@ -47,7 +47,8 @@ const urlController ={
                 return response.json({ message: 'token invalid' });
             }
             //BaseUrl to concat with RandomString
-            const BaseURL ='http://localhost:3001/api/url';
+            //const BaseURL ='http://localhost:3001/api/url';
+            const BaseURL ='https://ushorten.onrender.com/api/url';
 
             //Getting the long URL from user
             const {longURL}=req.body;

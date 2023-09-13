@@ -49,7 +49,7 @@ const userController={
 
             //Send Email along with link to activate the account
 
-            let link = `http://localhost:5173/activation_page/${token}`;
+            let link = `https://ushortener.netlify.app/activation_page/${token}`;
 
             await sendMail(email, "URL Shortener - Account Activation", `Hello !!, You have register to create a account on URL Shortener application.
 
