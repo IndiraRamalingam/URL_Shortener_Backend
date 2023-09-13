@@ -17,24 +17,23 @@ const urlSchema = new mongoose.Schema(
         required: true,
       },
       createdAt:{
-        type:Date,
+        type:String,
         required:true,
-        default:Date.now
+       },
+       month:{
+        type:String,
+        required:true,
        },
        clicks:{
         type:Number,
         required:true,
         default:0,
        },
-      visitHistory: [{ 
-        timestamp: { type: Number } 
-      }],
       user:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User'
       }],
       },
-      { timestamps: true },  
   );
 
 module.exports=mongoose.model('Url',urlSchema,'urls');

@@ -2,9 +2,7 @@ const User = require('../../models/user');
 const Url = require('../../models/url');
 const jwt = require("jsonwebtoken");
 const config=require('../../utils/config');
-const { request } = require('express');
 const randomstring=require('randomstring');
-const shortid=require("shortid");
 
 const SECRET_KEY = config.SECRET_KEY;
 
@@ -31,8 +29,8 @@ const urlController ={
             
         }
         catch(error){
-            console.error('Error in Fetching Patient ID',error)
-            res.status(500).json({message:'Error in Fetching Patient ID'})
+            console.error('Error in Fetching User ID',error)
+            res.status(500).json({message:'Error in Fetching User ID'})
         }
     },
 
@@ -49,42 +47,124 @@ const urlController ={
                 return response.json({ message: 'token invalid' });
             }
             //BaseUrl to concat with RandomString
-            const BaseURL ='http://localhost:5173';
+            const BaseURL ='http://localhost:3001/api/url';
 
             //Getting the long URL from user
             const {longURL}=req.body;
 
-            var user=await User.findById(req.params.id).exec();
+                    //To check whether the longUrl already exists            
+                    const longurl=await Url.find({longURL});
+                    let new_id;
+                    const one=longurl.map((i)=>{
+                        if((i.user) == (req.params.id))
+                        {
+                            console.log("MATCHED "+i.user)
+                             new_id=i.user;
+                        }
+                    })
+                    //if Url exists   
+                    if((new_id) == (req.params.id))
+                    {
+                        res.status(200).json({longurl})   
+                    }  
+                    //If not exists generate new URL
+                     else if(longURL.length >15)
+                    {
+                    console.log("It's new URL")
+                    var user=await User.findById(req.params.id).exec();
 
-            //Generate the random String
-            const shortId = randomstring.generate({
-                length: 6,
-                charset: "alphanumeric",
-            });
-            
-            //Created shortURL
-            const shortURL=`${BaseURL}/${shortId}`;
-            console.log(shortURL , shortId, longURL);
+                    //Generate the random String
+                    const shortId = randomstring.generate({
+                        length: 6,
+                        charset: "alphanumeric",
+                    });
+                    
+                    //Created shortURL
+                    const shortURL=`${BaseURL}/${shortId}`;
 
-            //Save the details in DB
-            const newUrl = new Url({
-                shortId : shortId,
-                shortURL:shortURL,
-                 longURL : longURL,     
-                 user:user._id,           
-            })
-
-            const result= await newUrl.save();
-
-            user.url=user.url.concat(result._id)
-            await user.save();
-            res.status(201).json({message:"URL shortened successfully"})
+                    //Created Date
+                    let dt = new Date();  
+                    let date = dt.getDate();
+                    let month = dt.getMonth() + 1;
+                    let year = dt.getFullYear();
+                    let fulldate = `${date}-${month}-${year}`
+                  
+                    //Save the details in DB
+                    const newUrl = new Url({
+                        shortId : shortId,
+                        shortURL:shortURL,
+                        longURL : longURL, 
+                        month:month,
+                        createdAt:fulldate,    
+                        user:user._id,           
+                    })
+        
+                    const result= await newUrl.save();
+        
+                    user.url=user.url.concat(result._id)
+                    await user.save();
+                    res.status(200).json({newUrl})
+                  }   
+                  else
+                  {
+                    console.log("SHORT URL")
+                  }
         }
         catch(error){
-            console.log("Error in creating URL ",error)
+            console.error("Error in creating URL ",error);
         }
-    }
+    },
 
+    //Get all URLs
+    getAll:async(req,res)=>{
+        try{
+    
+            let dt = new Date();  
+            let date = dt.getDate();
+            let month = dt.getMonth() + 1;
+            let year = dt.getFullYear();
+            let fulldate = `${date}-${month}-${year}`
+
+            const urls=await Url.find({user:(req.params.id)}).exec();
+
+            const monthlyurlcount=await Url.find({ $and: [ { user:(req.params.id) }, { month:month } ] }).count();
+           
+            const dayurlcount=await Url.find({ $and: [ { user:(req.params.id) }, { createdAt:fulldate } ] }).count();
+            
+            if(urls)
+            {
+                res.json({urls,monthlyurlcount,dayurlcount});
+            }
+            else{
+                res.json({message:"No URL found"})
+            }
+        }
+        catch(error)
+        {
+            console.log("Error in fetching all URL ",error)
+        }
+    },
+
+    //For Url Redirects
+    redirectUrl:async(req,res)=>{
+        try{
+             const url= await Url.findOne({shortId:(req.params.id)});            
+             if(!url){
+                res.status(404).json("Not found");
+             }
+             else 
+             {
+                url.clicks++;
+                url.save();      
+                res.redirect(`${url.longURL}`);
+            }
+        }
+        catch(error){
+            console.log("Error in redirecting URL  ", error);
+        }
+    },
+    
+   
 }
 
 module.exports=urlController;

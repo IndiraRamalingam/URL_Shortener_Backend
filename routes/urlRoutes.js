@@ -8,5 +8,10 @@ router.get('/getId',urlController.getUserID);
 //get the longURL and generate a short URL
 router.post('/generateShortURL/:id', urlController.generateShortURL);
 
+//get all urls
+router.get('/all/:id',urlController.getAll);
+
+//For Url redirection
+router.get('/:id',urlController.redirectUrl);
 
 module.exports=router;
